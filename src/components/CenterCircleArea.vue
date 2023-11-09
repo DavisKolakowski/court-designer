@@ -3,13 +3,15 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'CenterCircleArea',
-  setup() {
-    const areaColor = ref('#00558f');
-    return { areaColor };
+  props: {
+    areaColor: {
+      type: String,
+      default: '#00558f'
+    }
   }
-}
+});
 </script>

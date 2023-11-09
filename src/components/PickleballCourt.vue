@@ -3,7 +3,9 @@
     <PickleballPlayingArea />
     <PickleballKitchen />
     <PickleballNet />
-    <PickleballBoundaries />
+    <PickleballBoundaries :lineColor="showOverlay ? overlayColor : '#fff'" />
+    <BasketballBoundaries v-if="showBasketballOverlay" :lineColor="overlayColor" />
+    <TennisBoundaries v-if="showTennisOverlay" :lineColor="overlayColor" />
   </g>
 </template>
 
@@ -12,6 +14,8 @@ import PickleballPlayingArea from './PickleballPlayingArea.vue';
 import PickleballKitchen from './PickleballKitchen.vue';
 import PickleballNet from './PickleballNet.vue';
 import PickleballBoundaries from './PickleballBoundaries.vue';
+import BasketballBoundaries from './BasketballBoundaries.vue'; 
+import TennisBoundaries from './TennisBoundaries.vue'; 
 
 export default {
   name: 'PickleballCourt',
@@ -19,7 +23,16 @@ export default {
     PickleballPlayingArea,
     PickleballKitchen,
     PickleballNet,
-    PickleballBoundaries
+    PickleballBoundaries,
+    BasketballBoundaries, 
+    TennisBoundaries, 
+  },
+  props: {
+    showOverlay: Boolean,
+    overlayColor: String,
+    showBasketballOverlay: Boolean, 
+    showTennisOverlay: Boolean, 
   }
-}
+};
 </script>
+

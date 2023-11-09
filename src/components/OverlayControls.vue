@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <label><input type="checkbox" v-model="showBasketballOverlay" /> Show Basketball Overlay</label>

@@ -3,8 +3,10 @@
     <BasketballPlayingArea />
     <ThreeSecondArea />
     <CenterCircleArea />
-    <BasketballBoundaries />
+    <BasketballBoundaries :lineColor="showOverlay ? overlayColor : '#fff'"/>
     <BasketballHoops />
+    <TennisBoundaries v-if="showTennisOverlay" :lineColor="overlayColor" />
+    <PickleballBoundaries v-if="showPickleballOverlay" :lineColor="overlayColor" />    
   </g>
 </template>
 
@@ -14,6 +16,8 @@ import ThreeSecondArea from './ThreeSecondArea.vue';
 import CenterCircleArea from './CenterCircleArea.vue';
 import BasketballBoundaries from './BasketballBoundaries.vue';
 import BasketballHoops from './BasketballHoops.vue';
+import TennisBoundaries from './TennisBoundaries.vue';
+import PickleballBoundaries from './PickleballBoundaries.vue';
 
 export default {
   name: 'BasketballCourt',
@@ -22,7 +26,16 @@ export default {
     ThreeSecondArea,
     CenterCircleArea,
     BasketballBoundaries,
-    BasketballHoops
+    BasketballHoops,
+    TennisBoundaries,
+    PickleballBoundaries
+  },
+  props: {
+    showOverlay: Boolean,
+    showTennisOverlay: Boolean,
+    showPickleballOverlay: Boolean,
+    overlayColor: String
   }
-}
+};
 </script>
+

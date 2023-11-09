@@ -6,13 +6,16 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'PickleballPlayingArea',
-  setup() {
-    const playingAreaColor = ref('#405c3c');
-    return { playingAreaColor };
+  props: {
+    playingAreaColor: {
+      type: String,
+      default: '#405c3c'
+    }
   }
-}
+});
 </script>
+
