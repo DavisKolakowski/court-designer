@@ -1,4 +1,4 @@
-import { CourtType, CourtOverlays } from "../types/court";
+import { CourtType, CourtOverlays } from "../../types/court";
 
 interface CourtSVGProps {
   selectedCourt: CourtType;

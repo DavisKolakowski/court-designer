@@ -1,0 +1,70 @@
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { CourtType, ElementType, CourtOverlays } from '../types/court';
+
+interface UseDesignUrlStateProps {
+  courtDesign: any; // From useCourtDesign hook
+  selectedCourt: CourtType;
+}
+
+export const useDesignUrlState = ({ courtDesign, selectedCourt }: UseDesignUrlStateProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize state from URL params or load from state store
+  useEffect(() => {
+    const designParam = searchParams.get('design');
+    
+    if (designParam) {
+      try {
+        const decodedDesign = JSON.parse(atob(designParam));
+        // Load the design from URL
+        Object.entries(decodedDesign).forEach(([courtType, courtData]: [string, any]) => {
+          if (courtType === 'overlays') {
+            courtDesign.updateOverlays(courtData);
+          } else if (['basketball', 'tennis', 'pickleball'].includes(courtType)) {
+            const court = courtType as CourtType;
+            // Apply colors for this court
+            Object.entries(courtData.colors).forEach(([element, color]: [string, any]) => {
+              courtDesign.updateCourtColor(court, element as ElementType, color);
+            });
+            // Apply accessories setting
+            courtDesign.updateCourtAccessories(court, courtData.showAccessories);
+          }
+        });
+      } catch (e) {
+        console.warn('Failed to parse design from URL:', e);
+      }
+    } else {
+      // If no design param, reset to defaults to ensure clean state
+      courtDesign.resetState();
+    }    
+    courtDesign.updateState({ selectedCourt });
+  }, [selectedCourt, searchParams.get('design')]); // Only depend on the actual design param value// Update URL when significant state changes occur (for sharing)
+  useEffect(() => {
+    // Only update URL if there's actual design data beyond defaults
+    const designSummary = courtDesign.getDesignSummary();
+    const hasCustomizations = Object.entries(designSummary).some(([courtType, courtData]) => {
+      if (courtType === 'overlays') {
+        return Object.values(courtData as CourtOverlays).some(Boolean);
+      }
+      if (typeof courtData === 'object' && courtData !== null && 'colors' in courtData) {
+        const courtInfo = courtData as any;
+        return Object.keys(courtInfo.colors).length > 1 || // More than just background
+               !courtInfo.showAccessories; // Accessories turned off
+      }
+      return false;
+    });
+
+    if (hasCustomizations) {
+      const encodedState = btoa(JSON.stringify(designSummary));
+      setSearchParams({ design: encodedState }, { replace: true });
+    } else {
+      // Clear URL params if back to defaults
+      setSearchParams({}, { replace: true });
+    }
+  }, [
+    // Use stable serialized state instead of object references
+    JSON.stringify(courtDesign.getDesignSummary()),
+    setSearchParams
+  ]);
+};

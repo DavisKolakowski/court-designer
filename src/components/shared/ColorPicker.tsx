@@ -1,4 +1,4 @@
-import { PLAYERS_CHOICE_COLORS, SPECIALTY_COLORS } from "../data/colors";
+import { PLAYERS_CHOICE_COLORS, SPECIALTY_COLORS } from "../../data/colors";
 
 interface ColorPickerProps {
   selectedColor: string;
