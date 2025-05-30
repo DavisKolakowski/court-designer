@@ -20,6 +20,7 @@ const CourtDesigner = ({ selectedCourt, onBackToLanding }: CourtDesignerProps) =
   });
   const [appliedColors, setAppliedColors] = useState<Record<string, string>>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const [showMobileHint, setShowMobileHint] = useState<boolean>(true);
 
   // Reset selected element when court type changes
   useEffect(() => {
@@ -38,6 +39,15 @@ const CourtDesigner = ({ selectedCourt, onBackToLanding }: CourtDesignerProps) =
     
     setSelectedElement(getDefaultElement(selectedCourt));
   }, [selectedCourt]);
+
+  // Hide mobile hint after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowMobileHint(false);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const getElementDefaultColor = (element: ElementType): string => {
     const defaults: Record<ElementType, string> = {
@@ -69,6 +79,11 @@ const CourtDesigner = ({ selectedCourt, onBackToLanding }: CourtDesignerProps) =
     setSelectedColor(color);
     // Auto-apply color to selected element
     applyColorToElement(selectedElement, color);
+    
+    // Auto-close sidebar on mobile after color selection for better UX
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const applyColorToElement = (element: ElementType, color: string) => {
@@ -84,6 +99,11 @@ const CourtDesigner = ({ selectedCourt, onBackToLanding }: CourtDesignerProps) =
     // Update selected color to show current applied color for this element
     const currentColor = getElementCurrentColor(element);
     setSelectedColor(currentColor);
+    
+    // Auto-close sidebar on mobile after element selection for better UX
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const handleAccessoryToggle = () => {
@@ -202,7 +222,7 @@ Generated on: ${new Date().toLocaleDateString()}`;
       {/* Mobile-first layout: Sidebar on top, court below on mobile */}
       <div className="flex flex-col md:flex-row h-[calc(100vh-80px)]">
         {/* Mobile Sidebar - Collapsible and positioned above court */}
-        <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block md:w-80 md:flex-shrink-0`}>
+        <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block md:w-80 md:flex-shrink-0 transition-all duration-300 ease-in-out`}>
           <Sidebar
             selectedCourt={selectedCourt}
             selectedColor={selectedColor}
@@ -220,6 +240,13 @@ Generated on: ${new Date().toLocaleDateString()}`;
 
         {/* Main Court Display */}
         <main className="flex-1 bg-gray-100 flex items-center justify-center p-4 md:p-8 overflow-auto">
+          {/* Mobile hint when sidebar is closed */}
+          {!isSidebarOpen && showMobileHint && (
+            <div className="md:hidden fixed top-20 left-4 right-4 bg-primary/90 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-10 text-center animate-pulse">
+              Tap the menu button to customize colors
+            </div>
+          )}
+          
           <div className="bg-white rounded-lg shadow-lg p-3 md:p-6 max-w-5xl w-full">
             <div className="text-center mb-4 md:mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
