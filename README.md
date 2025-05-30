@@ -52,7 +52,7 @@ The application will be available at `http://localhost:5173` (default Vite port)
    - Select colors from the color palettes
    - Toggle court accessories (nets, hoops)
    - Add overlay lines from other court types
-3. **Export**: Click "Email Design" to send your specifications for consultation
+3. **Export**: Click "Request Quote" to send your specifications for consultation
 
 ## Court Types
 

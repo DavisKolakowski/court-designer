@@ -1,5 +1,4 @@
-import { CourtType, CourtOverlays } from "../types/court";
-import { SVG_TEMPLATE } from "../data/svg-template";
+import { CourtType, CourtOverlays } from "../../types/court";
 
 interface CourtSVGProps {
   selectedCourt: CourtType;
@@ -42,12 +41,10 @@ const CourtSVG = ({ selectedCourt, appliedColors, showAccessories, overlays }: C
       <path 
         d="m1260.67,115.67c-17.2-3.45-41.76-.81-60-.81-145.93,0-264.38,112.02-264.38,255.17s118.46,251.56,264.38,251.56c19.75,0,40.45-.22,60,.22"
         fill={getElementColor('three-point', '#1a3054')} // Competition Blue
-        fillOpacity="0.3"
       />
       <path 
         d="m37.29,620.03h0c17.21,3.45,41.78.81,60.04.81,146,0,264.52-112.02,264.52-255.17S243.34,114.11,97.33,114.11c-19.76,0-40.47.22-60.04-.22"
         fill={getElementColor('three-point', '#1a3054')} // Competition Blue
-        fillOpacity="0.3"
       />
       
       {/* Basketball Court Lines */}
@@ -253,7 +250,7 @@ const CourtSVG = ({ selectedCourt, appliedColors, showAccessories, overlays }: C
   };
 
   return (
-    <svg viewBox="0 0 1296.28 741.28" className="w-full h-auto" style={{ minHeight: '500px', maxHeight: '80vh' }}>
+    <svg viewBox="0 0 1296.28 741.28" className="w-full h-auto" style={{ minHeight: '300px', maxHeight: '70vh' }}>
       {/* Base Court Background */}
       <rect 
         x="2.64" y="2.64" width="1290.99" height="735.99" 
