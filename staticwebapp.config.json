@@ -1,0 +1,16 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/images/*.{png,jpg,gif,svg}", "/css/*", "/js/*"]
+  },
+  "mimeTypes": {
+    ".json": "application/json"
+  }
+}
