@@ -59,7 +59,7 @@ export const useDesignUrlState = ({ courtDesign, selectedCourt }: UseDesignUrlSt
         // Check if any color differs from its default value
         const colorsChanged = Object.entries(courtInfo.colors).some(([element, color]) => {
           const defaultColor = defaultColors[element];
-          return defaultColor && color !== defaultColor;
+          return defaultColor !== undefined && color !== defaultColor;
         });
         
         return accessoriesChanged || colorsChanged;
