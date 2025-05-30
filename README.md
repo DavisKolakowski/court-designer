@@ -1,27 +1,32 @@
 # Court Designer
 
-A customizable sports court design application built with React, TypeScript, and Tailwind CSS. This interactive tool allows users to visualize and customize different types of sports courts including basketball, tennis, and pickleball.
+A customizable sports court design application built with React, TypeScript, and Tailwind CSS. This interactive tool allows users to visualize and customize different types of sports courts including basketball, tennis, and pickleball. Deployed on Azure Static Web Apps.
 
 ![Court Designer Screenshot](https://via.placeholder.com/800x400?text=Court+Designer+Screenshot)
 
 ## Features
 
-- 🏀 Multiple court types (Basketball, Tennis, Pickleball)
-- 🎨 Extensive color customization with preset color palettes
-- 🧩 Customizable court elements (lines, playing areas, specific zones)
-- 📊 Court overlays to visualize multiple sport layouts on a single court
-- 📱 Responsive design for both desktop and mobile
-- 📧 Export designs via email for further consultation
+- 🏀 **Multiple Court Types**: Basketball, Tennis, and Pickleball courts with accurate dimensions
+- 🎨 **Extensive Color Customization**: Two distinct color palettes (Player's Choice and Specialty Colors)
+- 🧩 **Element-Specific Customization**: Customize individual court elements (lines, playing areas, specific zones)
+- 📊 **Court Overlays**: Visualize multiple sport layouts on a single court
+- 📱 **Responsive Design**: Optimized for both desktop and mobile devices with dedicated mobile UI
+- 📧 **Quote Request System**: Email integration for design consultations
+- 🎯 **Accessories Toggle**: Show/hide sport-specific equipment (hoops, nets)
+- 💾 **State Persistence**: Design state saved locally and shareable via URL
+- ⚡ **Fast Performance**: Built with Vite for optimal loading speeds
 
 ## Table of Contents
 
 - [Installation](#installation)
+- [Environment Configuration](#environment-configuration)
 - [Usage](#usage)
 - [Court Types](#court-types)
 - [Customization Options](#customization-options)
 - [Project Structure](#project-structure)
 - [Technologies Used](#technologies-used)
 - [Development](#development)
+- [Deployment](#deployment)
 - [License](#license)
 
 ## Installation
@@ -29,7 +34,7 @@ A customizable sports court design application built with React, TypeScript, and
 To run this project locally, follow these steps:
 
 ```bash
-# Clone the repository (if using git)
+# Clone the repository
 git clone <repository-url>
 
 # Navigate to the project directory
@@ -38,21 +43,62 @@ cd court-designer
 # Install dependencies
 npm install
 
+# Copy environment configuration
+cp .env.example .env
+
 # Start the development server
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173` (default Vite port) in your browser.
+The application will be available at `http://localhost:5173` in your browser.
+
+## Environment Configuration
+
+This application uses environment variables for configuration:
+
+### Local Development
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_QUOTE_EMAIL=your-email@example.com
+```
+
+### Azure Static Web Apps
+
+Configure environment variables in the Azure portal under Configuration > Application settings:
+
+- `VITE_QUOTE_EMAIL`: Email address for quote requests
+
+For more details, see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md).
 
 ## Usage
 
-1. **Landing Page**: Select your desired court type (Basketball, Tennis, or Pickleball)
-2. **Designer View**: Customize your court using the sidebar options:
-   - Choose court elements to modify
-   - Select colors from the color palettes
-   - Toggle court accessories (nets, hoops)
-   - Add overlay lines from other court types
-3. **Export**: Click "Request Quote" to send your specifications for consultation
+### Getting Started
+
+1. **Landing Page**: Visit the application and select your desired court type (Basketball, Tennis, or Pickleball)
+
+2. **Design Interface**: 
+   - **Desktop**: Use the sidebar panel for customization options
+   - **Mobile**: Tap "Customize" to access the design controls in a mobile-optimized drawer
+
+3. **Customization Process**:
+   - Select court elements to modify from the element list
+   - Choose colors from the Player's Choice or Specialty color palettes
+   - Toggle court accessories (nets, hoops) on/off
+   - Add overlay lines from other court types for multi-purpose designs
+
+4. **Share & Export**: 
+   - Design state is automatically saved and shareable via URL
+   - Click "Request Quote" to email your specifications for consultation
+
+### Mobile Experience
+
+The application provides a dedicated mobile interface with:
+- Touch-optimized controls
+- Mobile-specific drawer navigation
+- Responsive court visualization
+- One-handed operation support
 
 ## Court Types
 
@@ -119,54 +165,140 @@ Add overlay lines from other court types to visualize multi-purpose court layout
 ```
 src/
 ├── components/                # React components
-│   ├── ColorPicker.tsx        # Color selection component
-│   ├── CourtDesigner.tsx      # Main designer component
-│   ├── CourtSVG.tsx           # SVG rendering for courts
-│   ├── LandingPage.tsx        # Initial court selection page
-│   └── Sidebar.tsx            # Control panel for customization
+│   ├── court/                # Court visualization components
+│   │   ├── CourtDisplay.tsx   # Main court display container
+│   │   └── CourtSVG.tsx       # SVG rendering for courts
+│   │
+│   ├── design/               # Design interface components
+│   │   └── DesignSidebar.tsx  # Desktop design sidebar
+│   │
+│   ├── landing/              # Landing page components
+│   │   ├── LandingHeader.tsx  # Landing page header
+│   │   └── LandingPage.tsx    # Main landing page
+│   │
+│   ├── layout/               # Layout components
+│   │   └── DesignLayout.tsx   # Main design interface layout
+│   │
+│   ├── quote/                # Quote request components
+│   │   ├── ContactInformationForm.tsx
+│   │   ├── DesignSummaryDisplay.tsx
+│   │   └── QuoteDialog.tsx
+│   │
+│   ├── shared/               # Shared/reusable components
+│   │   ├── ColorPicker.tsx
+│   │   ├── CourtDropdown.tsx
+│   │   ├── CourtSelectionButton.tsx
+│   │   ├── CourtSelectionGrid.tsx
+│   │   ├── MobileBackdrop.tsx
+│   │   └── MobileHeader.tsx
+│   │
+│   ├── sidebar/              # Sidebar components
+│   │   ├── AccessoriesToggle.tsx
+│   │   ├── CourtOverlaysSection.tsx
+│   │   ├── ElementSelection.tsx
+│   │   └── SidebarHeader.tsx
+│   │
+│   ├── ui/                   # UI components
+│   │   ├── Button.tsx
+│   │   ├── Drawer.tsx
+│   │   ├── Input.tsx
+│   │   ├── Modal.tsx
+│   │   └── index.ts
+│   │
+│   └── CourtDesigner.tsx     # Main designer component
 │
-├── data/                      # Static data
-│   ├── colors.ts              # Color palette definitions
-│   └── svg-template.ts        # SVG templates for courts
+├── config/                   # Configuration files
+│   └── app.ts                # Application configuration
 │
-├── lib/                       # Utility functions
-│   └── utils.ts               # Helper utilities
+├── data/                     # Static data
+│   └── colors.ts             # Color palette definitions
 │
-├── types/                     # TypeScript type definitions
-│   └── court.ts               # Court-related types
+├── hooks/                    # Custom React hooks
+│   ├── useCourtDesign.ts     # Court design state management
+│   ├── useDesignInteractions.ts # Design interaction handlers
+│   ├── useDesignUrlState.ts  # URL state synchronization
+│   └── useMobileDetection.ts # Mobile device detection
 │
-├── App.tsx                    # Main application component
-├── main.tsx                   # Application entry point
-└── index.css                  # Global styles
+├── lib/                      # Utility functions
+│   └── utils.ts              # Helper utilities
+│
+├── types/                    # TypeScript type definitions
+│   └── court.ts              # Court-related types
+│
+├── utils/                    # Utility functions
+│   ├── courtHelpers.ts       # Court-specific helpers
+│   └── quoteGenerator.ts     # Quote request generation
+│
+├── App.tsx                   # Main application component
+├── index.css                 # Global styles with Tailwind
+├── main.tsx                  # Application entry point
+└── vite-env.d.ts            # Vite environment type definitions
 ```
 
 ## Technologies Used
 
-- **React**: UI library for building component-based interfaces
-- **TypeScript**: Type-safe JavaScript
-- **Tailwind CSS**: Utility-first CSS framework for styling
+- **React 18**: Modern UI library with hooks and functional components
+- **TypeScript**: Type-safe JavaScript for better development experience
+- **Tailwind CSS**: Utility-first CSS framework for rapid styling
 - **Vite**: Fast build tool and development server
-- **Lucide React**: Icon library
-- **SVG**: Vector graphics for court rendering
+- **React Router**: Client-side routing for multi-page navigation
+- **Lucide React**: Modern icon library
+- **React Icons**: Additional icon library
+- **SVG**: Vector graphics for scalable court rendering
+- **Azure Static Web Apps**: Cloud hosting and deployment platform
+- **Local Storage**: Client-side state persistence
 
 ## Development
 
 ### Available Scripts
 
-- `npm run dev`: Start the development server
+- `npm run dev`: Start the development server with hot reload
 - `npm run build`: Build the application for production
 - `npm run preview`: Preview the production build locally
 - `npm run type-check`: Run TypeScript type checking
+
+### Development Workflow
+
+1. **Design State Management**: The application uses a comprehensive state management system with local storage persistence
+2. **Mobile-First Approach**: Components are designed with mobile responsiveness as a priority
+3. **Modular Architecture**: Components are organized by feature and reusability
+4. **Type Safety**: Full TypeScript coverage for better maintainability
 
 ### Adding New Court Types
 
 To add a new court type:
 
 1. Update the `CourtType` type in `src/types/court.ts`
-2. Add new element types in `src/types/court.ts`
-3. Create SVG rendering logic in `CourtSVG.tsx`
-4. Update the sidebar options in `Sidebar.tsx`
-5. Add default colors in `CourtDesigner.tsx`
+2. Add new element types for the court in `src/types/court.ts`
+3. Create SVG rendering logic in `src/components/court/CourtSVG.tsx`
+4. Update court helpers in `src/utils/courtHelpers.ts`
+5. Add default colors in the design system
+6. Update element selection components
+
+### Adding New Features
+
+1. **New Color Palettes**: Add to `src/data/colors.ts`
+2. **New UI Components**: Add to `src/components/ui/`
+3. **New Hooks**: Add to `src/hooks/`
+4. **Configuration Options**: Update `src/config/app.ts`
+
+## Deployment
+
+### Azure Static Web Apps
+
+The application is configured for deployment on Azure Static Web Apps:
+
+1. **Automatic Deployment**: GitHub Actions workflow handles CI/CD
+2. **Environment Variables**: Configure in Azure portal
+3. **Custom Domain**: Support for custom domains
+4. **SSL**: Automatic SSL certificate management
+
+### Build Configuration
+
+- **Output Directory**: `dist/`
+- **Build Command**: `npm run build`
+- **Node Version**: 20.x
+- **Framework**: Vite (React)
 
 ## License
 
