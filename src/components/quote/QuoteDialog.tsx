@@ -4,6 +4,7 @@ import { CourtType, CourtOverlays } from '../../types/court';
 import ContactInformationForm, { ContactMethod } from '../quote/ContactInformationForm';
 import DesignSummaryDisplay from '../quote/DesignSummaryDisplay';
 import { generateQuoteRequest } from '../../utils/quoteGenerator';
+import { appConfig } from '../../config/app';
 
 interface QuoteDialogProps {
   isOpen: boolean;
@@ -59,10 +60,9 @@ const QuoteDialog: React.FC<QuoteDialogProps> = ({
       });
       
       const subject = `Quote Request - ${courtType.charAt(0).toUpperCase() + courtType.slice(1)} Court Design`;
-      
-      // Create mailto link
+        // Create mailto link
       const body = encodeURIComponent(quoteRequest);
-      const mailto = `mailto:reagankola@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+      const mailto = `mailto:${appConfig.quoteEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
       
       // Open email client
       window.location.href = mailto;
