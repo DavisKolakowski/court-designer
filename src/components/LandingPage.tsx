@@ -1,11 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import { CourtType } from "../types/court";
 import { FaMedal } from "react-icons/fa";
 
-interface LandingPageProps {
-  onCourtSelect: (court: CourtType) => void;
-}
+const LandingPage = () => {
+  const navigate = useNavigate();
 
-const LandingPage = ({ onCourtSelect }: LandingPageProps) => {
+  const handleCourtSelect = (court: CourtType) => {
+    navigate(`/${court}`);
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-8">
       <div className="text-center max-w-2xl">
@@ -23,7 +26,7 @@ const LandingPage = ({ onCourtSelect }: LandingPageProps) => {
         {/* Court Selection Buttons */}
         <div className="flex flex-col sm:flex-row sm:justify-center sm:space-x-4 space-y-4 sm:space-y-0">
           <button
-            onClick={() => onCourtSelect('basketball')}
+            onClick={() => handleCourtSelect('basketball')}
             className="flex items-center justify-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-orange-200 hover:border-orange-300"
           >
             <span className="w-6 h-6 bg-orange-500 rounded-full mr-3"></span>
@@ -31,7 +34,7 @@ const LandingPage = ({ onCourtSelect }: LandingPageProps) => {
           </button>
           
           <button
-            onClick={() => onCourtSelect('tennis')}
+            onClick={() => handleCourtSelect('tennis')}
             className="flex items-center justify-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-green-200 hover:border-green-300"
           >
             <span className="w-6 h-6 bg-green-500 rounded-full mr-3"></span>
@@ -39,7 +42,7 @@ const LandingPage = ({ onCourtSelect }: LandingPageProps) => {
           </button>
           
           <button
-            onClick={() => onCourtSelect('pickleball')}
+            onClick={() => handleCourtSelect('pickleball')}
             className="flex items-center justify-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-purple-200 hover:border-purple-300"
           >
             <span className="w-6 h-6 bg-purple-500 rounded-full mr-3"></span>

@@ -1,290 +1,331 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Mail, Menu, X } from "lucide-react";
-import { CourtType, ElementType, CourtOverlays } from "../types/court";
-import Sidebar from "./Sidebar";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { CourtType, ElementType } from "../types/court";
+import { useCourtDesign } from "../hooks/useCourtDesign";
+import { useMobileDetection } from "../hooks/useMobileDetection";
 import CourtSVG from "./CourtSVG";
+import ColorPicker from "./ColorPicker";
+import { EmailDesignDialog } from "./EmailDesignDialog";
+import { Mail, ChevronDown } from "lucide-react";
 
 interface CourtDesignerProps {
   selectedCourt: CourtType;
-  onBackToLanding: () => void;
 }
 
-const CourtDesigner = ({ selectedCourt, onBackToLanding }: CourtDesignerProps) => {
-  const [selectedColor, setSelectedColor] = useState<string>("#233e6d"); // Standard Blue instead of #193f70
-  const [selectedElement, setSelectedElement] = useState<ElementType>("base-background");
-  const [showAccessories, setShowAccessories] = useState<boolean>(true);
-  const [overlays, setOverlays] = useState<CourtOverlays>({
-    tennis: false,
-    pickleball: false,
-    basketball: false
-  });
-  const [appliedColors, setAppliedColors] = useState<Record<string, string>>({});
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [showMobileHint, setShowMobileHint] = useState<boolean>(true);
+const CourtDesigner = ({ selectedCourt }: CourtDesignerProps) => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isMobile = useMobileDetection();
+  const courtDesign = useCourtDesign();
+  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [isCourtDropdownOpen, setIsCourtDropdownOpen] = useState(false);
 
-  // Reset selected element when court type changes
+  // Initialize state from URL params
   useEffect(() => {
-    const getDefaultElement = (courtType: CourtType): ElementType => {
-      switch (courtType) {
-        case 'basketball':
-          return 'base-background';
-        case 'tennis':
-          return 'base-background';
-        case 'pickleball':
-          return 'base-background';
-        default:
-          return 'base-background';
+    const element = searchParams.get('element') as ElementType;
+    const color = searchParams.get('color');
+    const accessories = searchParams.get('accessories');
+    const overlays = searchParams.get('overlays');
+
+    if (element) courtDesign.updateState({ selectedElement: element });
+    if (color) courtDesign.updateState({ selectedColor: color });
+    if (accessories) courtDesign.updateState({ showAccessories: accessories === 'true' });
+    if (overlays) {
+      try {
+        const overlayData = JSON.parse(overlays);
+        courtDesign.updateState({ overlays: overlayData });
+      } catch (e) {
+        // Invalid JSON, ignore
       }
-    };
+    }
     
-    setSelectedElement(getDefaultElement(selectedCourt));
+    courtDesign.updateState({ selectedCourt });
   }, [selectedCourt]);
 
-  // Hide mobile hint after 5 seconds
+  // Update URL when state changes
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowMobileHint(false);
-    }, 5000);
+    const params = new URLSearchParams();
+    if (courtDesign.selectedElement !== 'base-background') {
+      params.set('element', courtDesign.selectedElement);
+    }
+    if (courtDesign.selectedColor !== '#233e6d') {
+      params.set('color', courtDesign.selectedColor);
+    }
+    if (!courtDesign.showAccessories) {
+      params.set('accessories', 'false');
+    }
+    if (Object.values(courtDesign.overlays).some(v => v)) {
+      params.set('overlays', JSON.stringify(courtDesign.overlays));
+    }
     
-    return () => clearTimeout(timer);
-  }, []);
+    setSearchParams(params, { replace: true });
+  }, [
+    courtDesign.selectedElement,
+    courtDesign.selectedColor,
+    courtDesign.showAccessories,
+    courtDesign.overlays,
+    setSearchParams
+  ]);
 
-  const getElementDefaultColor = (element: ElementType): string => {
-    const defaults: Record<ElementType, string> = {
-      // Common elements
-      'base-background': '#6c6d6f', // Gray
-      // Basketball elements
-      'playing-area': '#233e6d', // Standard Blue
-      'lines': '#ffffff', // Brilliant White
-      'three-point': '#1a3054', // Competition Blue
-      'center-circle': '#1a3054', // Competition Blue
-      'three-second-area': '#1a3054', // Competition Blue
-      // Tennis elements
-      'tennis-playing-area': '#7b3522', // Classic Red
-      'tennis-lines': '#ffffff', // Brilliant White
-      // Pickleball elements
-      'pickleball-kitchen': '#233e6d', // Standard Blue
-      'pickleball-service-area': '#445f43', // Competition Green
-      'pickleball-lines': '#ffffff' // Brilliant White
-    };
-    return defaults[element] || '#233e6d';
+  const handleCourtChange = (newCourt: CourtType) => {
+    navigate(`/${newCourt}`);
+    setIsCourtDropdownOpen(false);
   };
-
-  const getElementCurrentColor = (element: ElementType): string => {
-    const key = `${selectedCourt}-${element}`;
-    return appliedColors[key] || getElementDefaultColor(element);
-  };
-
-  const handleColorSelect = (color: string) => {
-    setSelectedColor(color);
-    // Auto-apply color to selected element
-    applyColorToElement(selectedElement, color);
-    
-    // Auto-close sidebar on mobile after color selection for better UX
-    if (window.innerWidth < 768) {
+  const handleElementSelect = (element: ElementType) => {
+    const currentColor = courtDesign.appliedColors[`${selectedCourt}-${element}`] || '#233e6d';
+    courtDesign.updateState({ 
+      selectedElement: element,
+      selectedColor: currentColor
+    });
+    if (isMobile) {
       setIsSidebarOpen(false);
     }
   };
 
-  const applyColorToElement = (element: ElementType, color: string) => {
-    const key = `${selectedCourt}-${element}`;
-    setAppliedColors(prev => ({
-      ...prev,
-      [key]: color
-    }));
-  };
-
-  const handleElementSelect = (element: ElementType) => {
-    setSelectedElement(element);
-    // Update selected color to show current applied color for this element
-    const currentColor = getElementCurrentColor(element);
-    setSelectedColor(currentColor);
+  const handleColorSelect = (color: string) => {
+    courtDesign.updateState({ selectedColor: color });
     
-    // Auto-close sidebar on mobile after element selection for better UX
-    if (window.innerWidth < 768) {
+    // Auto-apply color to selected element
+    const key = `${selectedCourt}-${courtDesign.selectedElement}`;
+    courtDesign.updateState({
+      appliedColors: {
+        ...courtDesign.appliedColors,
+        [key]: color
+      }
+    });
+    
+    if (isMobile) {
       setIsSidebarOpen(false);
     }
   };
 
   const handleAccessoryToggle = () => {
-    setShowAccessories(!showAccessories);
+    courtDesign.updateState({ showAccessories: !courtDesign.showAccessories });
   };
 
   const handleOverlayToggle = (courtType: CourtType) => {
-    setOverlays(prev => ({
-      ...prev,
-      [courtType]: !prev[courtType]
-    }));
+    courtDesign.updateState({
+      overlays: {
+        ...courtDesign.overlays,
+        [courtType]: !courtDesign.overlays[courtType]
+      }
+    });
   };
 
-  const handleEmailDesign = () => {
-    const courtSpecs = generateCourtSpecs();
-    const subject = "Court Design Specification";
-    const body = encodeURIComponent(courtSpecs);
-    const mailto = `mailto:design@sportscourts.com?subject=${subject}&body=${body}`;
-    window.location.href = mailto;
+  const getElementsForCourt = (): ElementType[] => {
+    switch (selectedCourt) {
+      case 'basketball':
+        return ['base-background', 'playing-area', 'lines', 'three-point', 'center-circle', 'three-second-area'];
+      case 'tennis':
+        return ['base-background', 'tennis-playing-area', 'tennis-lines'];
+      case 'pickleball':
+        return ['base-background', 'pickleball-kitchen', 'pickleball-service-area', 'pickleball-lines'];
+      default:
+        return ['base-background'];
+    }
   };
 
-  const generateCourtSpecs = () => {
-    const courtName = selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1);
-    const overlayList = Object.entries(overlays)
-      .filter(([_, enabled]) => enabled)
-      .map(([type, _]) => type.charAt(0).toUpperCase() + type.slice(1))
-      .join(', ') || 'None';
-
-    return `Court Design Specifications:
-
-Court Type: ${courtName}
-Selected Color: ${selectedColor}
-Applied Colors: ${JSON.stringify(appliedColors, null, 2)}
-Accessories: ${showAccessories ? 'Enabled' : 'Disabled'}
-Overlays: ${overlayList}
-
-Generated on: ${new Date().toLocaleDateString()}`;
-  };
-
-  const getCourtSpecs = () => {
-    const specs = {
-      basketball: "94' x 50' regulation size",
-      tennis: "78' x 36' regulation size", 
-      pickleball: "44' x 20' regulation size"
-    };
-    return specs[selectedCourt] || '';
-  };
-
-  const getElementLabel = () => {
+  const getElementLabel = (element: ElementType): string => {
     const labels: Record<ElementType, string> = {
-      // Common elements
       'base-background': 'Background',
-      // Basketball elements
       'playing-area': 'Playing Area',
       'lines': 'Court Lines',
       'three-point': 'Three Point Area',
       'center-circle': 'Center Circle',
       'three-second-area': 'Three Second Area',
-      // Tennis elements
       'tennis-playing-area': 'Playing Area',
       'tennis-lines': 'Court Lines',
-      // Pickleball elements
       'pickleball-kitchen': 'Kitchen',
       'pickleball-service-area': 'Service Area',
       'pickleball-lines': 'Court Lines'
     };
-    return labels[selectedElement] || '';
+    return labels[element] || element;
   };
-
+  const courtOptions = [
+    { value: 'basketball', label: 'Basketball', icon: '🏀' },
+    { value: 'tennis', label: 'Tennis', icon: '🎾' },
+    { value: 'pickleball', label: 'Pickleball', icon: '🏓' }
+  ];
+  
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Bar */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 md:space-x-4">
-            <button 
-              onClick={onBackToLanding}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </button>
-            <h1 className="text-lg md:text-xl font-semibold text-gray-800">
-              {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court Designer
-            </h1>
-          </div>
-          
-          <div className="flex items-center space-x-2 md:space-x-3">
-            {/* Mobile Sidebar Toggle */}
-            <button 
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors relative"
-              aria-label={isSidebarOpen ? "Close customization panel" : "Open customization panel"}
-            >
-              {isSidebarOpen ? (
-                <X className="w-5 h-5 text-gray-600" />
-              ) : (
-                <>
-                  <Menu className="w-5 h-5 text-gray-600" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full"></span>
-                </>
+    <div className="h-screen flex">
+      {/* Mobile Backdrop */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40" 
+          onClick={() => setIsSidebarOpen(false)} 
+        />
+      )}
+      
+      {/* Left Sidebar */}
+      <div className={`${
+        isMobile 
+          ? `fixed top-0 left-0 h-full w-80 transform transition-transform duration-300 ease-in-out z-50 ${
+              isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`
+          : 'w-80 relative'
+      } bg-white border-r border-gray-200 flex flex-col shadow-lg`}>
+          {/* Header */}
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Customize Your Court</h2>
+            
+            {/* Court Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsCourtDropdownOpen(!isCourtDropdownOpen)}
+                className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-center">
+                  <span className="mr-2">
+                    {courtOptions.find(opt => opt.value === selectedCourt)?.icon}
+                  </span>
+                  <span className="font-medium">
+                    {courtOptions.find(opt => opt.value === selectedCourt)?.label}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isCourtDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isCourtDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                  {courtOptions.map(option => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleCourtChange(option.value as CourtType)}
+                      className={`w-full flex items-center p-3 hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                        option.value === selectedCourt ? 'bg-blue-50 text-blue-700' : ''
+                      }`}
+                    >
+                      <span className="mr-2">{option.icon}</span>
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
               )}
-            </button>
-            
-            <button 
-              onClick={handleEmailDesign}
-              className="flex items-center px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors text-sm md:text-base"
-            >
-              <Mail className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Email Design</span>
-              <span className="sm:hidden">Email</span>
-            </button>
+            </div>
           </div>
-        </div>
-      </header>
 
-      {/* Mobile-first layout: Sidebar on top, court below on mobile */}
-      <div className="flex flex-col md:flex-row h-[calc(100vh-80px)]">
-        {/* Mobile Sidebar - Collapsible and positioned above court */}
-        <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block md:w-80 md:flex-shrink-0 transition-all duration-300 ease-in-out`}>
-          <Sidebar
-            selectedCourt={selectedCourt}
-            selectedColor={selectedColor}
-            selectedElement={selectedElement}
-            showAccessories={showAccessories}
-            overlays={overlays}
-            onColorSelect={handleColorSelect}
-            onElementSelect={handleElementSelect}
-            onAccessoryToggle={handleAccessoryToggle}
-            onOverlayToggle={handleOverlayToggle}
-            isMobile={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-          />
-        </div>
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Element Selection */}
+            <div>
+              <h3 className="font-medium text-gray-800 mb-4">Apply Color To</h3>
+              <div className="space-y-2">
+                {getElementsForCourt().map(element => (
+                  <button
+                    key={element}
+                    onClick={() => handleElementSelect(element)}
+                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                      courtDesign.selectedElement === element
+                        ? 'bg-primary border-primary text-white'
+                        : 'bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {getElementLabel(element)}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* Main Court Display */}
-        <main className="flex-1 bg-gray-100 flex items-center justify-center p-4 md:p-8 overflow-auto">
-          {/* Mobile hint when sidebar is closed */}
-          {!isSidebarOpen && showMobileHint && (
-            <div className="md:hidden fixed top-20 left-4 right-4 bg-primary/90 text-white text-sm px-4 py-2 rounded-lg shadow-lg z-10 text-center animate-pulse">
-              Tap the menu button to customize colors
+            {/* Color Picker */}
+            <div>
+              <h3 className="font-medium text-gray-800 mb-4">Select Color</h3>
+              <ColorPicker
+                selectedColor={courtDesign.selectedColor}
+                onColorSelect={handleColorSelect}
+              />
             </div>
-          )}
-          
-          <div className="bg-white rounded-lg shadow-lg p-3 md:p-6 max-w-5xl w-full">
-            <div className="text-center mb-4 md:mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
-                {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court
-              </h2>
-              <p className="text-sm md:text-base text-gray-600">Select colors from the sidebar to customize your court design</p>
-            </div>
-            
-            {/* Court SVG Container */}
-            <div className="flex justify-center">
-              <div className="relative bg-gray-200 rounded-lg p-2 md:p-4 w-full court-container">
-                <CourtSVG
-                  selectedCourt={selectedCourt}
-                  appliedColors={appliedColors}
-                  showAccessories={showAccessories}
-                  overlays={overlays}
+
+            {/* Accessories */}
+            <div>
+              <h3 className="font-medium text-gray-800 mb-4">Accessories</h3>
+              <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">                <span className="text-sm text-gray-600">
+                  Show {selectedCourt === 'basketball' ? 'Hoops' : selectedCourt === 'tennis' ? 'Net' : 'Net'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={courtDesign.showAccessories}
+                  onChange={handleAccessoryToggle}
+                  className="w-4 h-4 text-primary rounded focus:ring-primary"
                 />
-              </div>
+              </label>
             </div>
-            
-            {/* Court Info Panel */}
-            <div className="mt-4 md:mt-6 bg-gray-50 rounded-lg p-3 md:p-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
-                <div>
-                  <h3 className="font-medium text-gray-800">
-                    {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court
-                  </h3>
-                  <p className="text-sm text-gray-600">{getCourtSpecs()}</p>
-                </div>
-                <div className="md:text-right">
-                  <p className="text-sm text-gray-600">Selected Element</p>
-                  <p className="font-medium text-gray-800">{getElementLabel()}</p>
-                </div>
+
+            {/* Overlays */}
+            <div>
+              <h3 className="font-medium text-gray-800 mb-4">Court Overlays</h3>
+              <div className="space-y-2">
+                {(['basketball', 'tennis', 'pickleball'] as CourtType[])
+                  .filter(court => court !== selectedCourt)
+                  .map(courtType => (
+                    <label key={courtType} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">                      <span className="text-sm text-gray-600">
+                        Show {courtType.charAt(0).toUpperCase() + courtType.slice(1)} Lines
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={courtDesign.overlays[courtType]}
+                        onChange={() => handleOverlayToggle(courtType)}
+                        className="w-4 h-4 text-primary rounded focus:ring-primary"
+                      />
+                    </label>
+                  ))}
               </div>
             </div>
           </div>
-        </main>
+
+          {/* Email Button at Bottom */}
+          <div className="p-6 border-t border-gray-200">
+            <button
+              onClick={() => setIsEmailDialogOpen(true)}
+              className="w-full flex items-center justify-center px-4 py-3 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Email Design            </button>
+          </div>
+        </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Mobile Header */}
+        {isMobile && (
+          <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+            <h1 className="text-lg font-semibold">
+              {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court
+            </h1>
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 rounded-lg bg-primary text-white"
+            >
+              Customize
+            </button>
+          </div>
+        )}        {/* Court Display */}
+        <div className="flex-1 p-4 bg-gray-50">
+          <div className="h-full bg-white rounded-lg shadow-sm p-4 flex items-center justify-center">
+            <div className="w-full max-w-4xl">
+              <CourtSVG
+                selectedCourt={selectedCourt}
+                appliedColors={courtDesign.appliedColors}
+                showAccessories={courtDesign.showAccessories}
+                overlays={courtDesign.overlays}
+              />
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Email Dialog */}
+      <EmailDesignDialog
+        isOpen={isEmailDialogOpen}
+        onClose={() => setIsEmailDialogOpen(false)}
+        courtType={selectedCourt}
+        appliedColors={courtDesign.appliedColors}
+        selectedColor={courtDesign.selectedColor}
+        showAccessories={courtDesign.showAccessories}
+        overlays={courtDesign.overlays}
+      />
     </div>
   );
 };
