@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail, Menu, X } from "lucide-react";
 import { CourtType, ElementType, CourtOverlays } from "../types/court";
 import Sidebar from "./Sidebar";
 import CourtSVG from "./CourtSVG";
@@ -19,6 +19,7 @@ const CourtDesigner = ({ selectedCourt, onBackToLanding }: CourtDesignerProps) =
     basketball: false
   });
   const [appliedColors, setAppliedColors] = useState<Record<string, string>>({});
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   // Reset selected element when court type changes
   useEffect(() => {
@@ -155,59 +156,81 @@ Generated on: ${new Date().toLocaleDateString()}`;
   return (
     <div className="min-h-screen bg-background">
       {/* Header Bar */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+      <header className="bg-white shadow-sm border-b border-gray-200 px-4 md:px-6 py-3 md:py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <button 
               onClick={onBackToLanding}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <h1 className="text-xl font-semibold text-gray-800">
+            <h1 className="text-lg md:text-xl font-semibold text-gray-800">
               {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court Designer
             </h1>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 md:space-x-3">
+            {/* Mobile Sidebar Toggle */}
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors relative"
+              aria-label={isSidebarOpen ? "Close customization panel" : "Open customization panel"}
+            >
+              {isSidebarOpen ? (
+                <X className="w-5 h-5 text-gray-600" />
+              ) : (
+                <>
+                  <Menu className="w-5 h-5 text-gray-600" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full"></span>
+                </>
+              )}
+            </button>
+            
             <button 
               onClick={handleEmailDesign}
-              className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors"
+              className="flex items-center px-3 md:px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors text-sm md:text-base"
             >
-              <Mail className="w-4 h-4 mr-2" />
-              Email Design
+              <Mail className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Email Design</span>
+              <span className="sm:hidden">Email</span>
             </button>
           </div>
         </div>
       </header>
 
-      <div className="flex h-screen">
-        {/* Sidebar */}
-        <Sidebar
-          selectedCourt={selectedCourt}
-          selectedColor={selectedColor}
-          selectedElement={selectedElement}
-          showAccessories={showAccessories}
-          overlays={overlays}
-          onColorSelect={handleColorSelect}
-          onElementSelect={handleElementSelect}
-          onAccessoryToggle={handleAccessoryToggle}
-          onOverlayToggle={handleOverlayToggle}
-        />
+      {/* Mobile-first layout: Sidebar on top, court below on mobile */}
+      <div className="flex flex-col md:flex-row h-[calc(100vh-80px)]">
+        {/* Mobile Sidebar - Collapsible and positioned above court */}
+        <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block md:w-80 md:flex-shrink-0`}>
+          <Sidebar
+            selectedCourt={selectedCourt}
+            selectedColor={selectedColor}
+            selectedElement={selectedElement}
+            showAccessories={showAccessories}
+            overlays={overlays}
+            onColorSelect={handleColorSelect}
+            onElementSelect={handleElementSelect}
+            onAccessoryToggle={handleAccessoryToggle}
+            onOverlayToggle={handleOverlayToggle}
+            isMobile={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+        </div>
 
         {/* Main Court Display */}
-        <main className="flex-1 bg-gray-100 flex items-center justify-center p-8">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-5xl w-full">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <main className="flex-1 bg-gray-100 flex items-center justify-center p-4 md:p-8 overflow-auto">
+          <div className="bg-white rounded-lg shadow-lg p-3 md:p-6 max-w-5xl w-full">
+            <div className="text-center mb-4 md:mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
                 {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court
               </h2>
-              <p className="text-gray-600">Select colors from the sidebar to customize your court design</p>
+              <p className="text-sm md:text-base text-gray-600">Select colors from the sidebar to customize your court design</p>
             </div>
             
             {/* Court SVG Container */}
             <div className="flex justify-center">
-              <div className="relative bg-gray-200 rounded-lg p-4 w-full">
+              <div className="relative bg-gray-200 rounded-lg p-2 md:p-4 w-full court-container">
                 <CourtSVG
                   selectedCourt={selectedCourt}
                   appliedColors={appliedColors}
@@ -218,15 +241,15 @@ Generated on: ${new Date().toLocaleDateString()}`;
             </div>
             
             {/* Court Info Panel */}
-            <div className="mt-6 bg-gray-50 rounded-lg p-4">
-              <div className="flex items-center justify-between">
+            <div className="mt-4 md:mt-6 bg-gray-50 rounded-lg p-3 md:p-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
                 <div>
                   <h3 className="font-medium text-gray-800">
                     {selectedCourt.charAt(0).toUpperCase() + selectedCourt.slice(1)} Court
                   </h3>
                   <p className="text-sm text-gray-600">{getCourtSpecs()}</p>
                 </div>
-                <div className="text-right">
+                <div className="md:text-right">
                   <p className="text-sm text-gray-600">Selected Element</p>
                   <p className="font-medium text-gray-800">{getElementLabel()}</p>
                 </div>

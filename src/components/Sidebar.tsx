@@ -12,6 +12,8 @@ interface SidebarProps {
   onElementSelect: (element: ElementType) => void;
   onAccessoryToggle: () => void;
   onOverlayToggle: (courtType: CourtType) => void;
+  isMobile?: boolean;
+  onClose?: () => void;
 }
 
 const Sidebar = ({
@@ -23,7 +25,9 @@ const Sidebar = ({
   onColorSelect,
   onElementSelect,
   onAccessoryToggle,
-  onOverlayToggle
+  onOverlayToggle,
+  isMobile = false,
+  onClose
 }: SidebarProps) => {
   const getAccessoryLabel = () => {
     const labels = {
@@ -74,15 +78,29 @@ const Sidebar = ({
   };
 
   return (
-    <aside className="w-80 bg-white shadow-lg border-r border-gray-200 flex flex-col">
+    <aside className={`${isMobile ? 'w-full border-b court-sidebar' : 'w-80 border-r'} bg-white shadow-lg border-gray-200 flex flex-col md:h-full`}>
       {/* Sidebar Header */}
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2">Customize Your Court</h2>
-        <p className="text-sm text-gray-600">Choose colors and toggle accessories</p>
+      <div className="p-4 md:p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">Customize Your Court</h2>
+            <p className="text-sm text-gray-600">Choose colors and toggle accessories</p>
+          </div>
+          {/* Mobile close button */}
+          {isMobile && onClose && (
+            <button 
+              onClick={onClose}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <span className="sr-only">Close sidebar</span>
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+      <div className={`${isMobile ? 'max-h-96 md:max-h-none' : 'flex-1'} overflow-y-auto sidebar-scroll p-4 md:p-6 space-y-4 md:space-y-6`}>
         
         {/* Court Accessories Toggle */}
         <div className="bg-gray-50 rounded-lg p-4">
