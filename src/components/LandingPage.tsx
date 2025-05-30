@@ -29,7 +29,7 @@ const LandingPage = () => {
             onClick={() => handleCourtSelect('basketball')}
             className="flex items-center justify-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-orange-200 hover:border-orange-300"
           >
-            <span className="w-6 h-6 bg-orange-500 rounded-full mr-3"></span>
+            <span className="text-2xl mr-3">🏀</span>
             <span className="text-lg font-medium text-gray-800">Basketball</span>
           </button>
           
@@ -37,7 +37,7 @@ const LandingPage = () => {
             onClick={() => handleCourtSelect('tennis')}
             className="flex items-center justify-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-green-200 hover:border-green-300"
           >
-            <span className="w-6 h-6 bg-green-500 rounded-full mr-3"></span>
+            <span className="text-2xl mr-3">🎾</span>
             <span className="text-lg font-medium text-gray-800">Tennis</span>
           </button>
           
@@ -45,7 +45,7 @@ const LandingPage = () => {
             onClick={() => handleCourtSelect('pickleball')}
             className="flex items-center justify-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-purple-200 hover:border-purple-300"
           >
-            <span className="w-6 h-6 bg-purple-500 rounded-full mr-3"></span>
+            <span className="text-2xl mr-3">🏓</span>
             <span className="text-lg font-medium text-gray-800">Pickleball</span>
           </button>
         </div>
