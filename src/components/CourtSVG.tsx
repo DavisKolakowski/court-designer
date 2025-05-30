@@ -19,34 +19,34 @@ const CourtSVG = ({ selectedCourt, appliedColors, showAccessories, overlays }: C
       {/* Basketball Playing Area */}
       <rect 
         x="37.3" y="44.33" width="1223.36" height="644.33" 
-        fill={getElementColor('playing-area', '#233e6d')} // Standard Blue instead of #193f70
+        fill={getElementColor('playing-area', '#233e6d')} // Standard Blue
       />
       
       {/* Basketball Three-Second Areas */}
       <rect 
         x="1015.63" y="290.7" width="245.02" height="155.7" 
-        fill={getElementColor('three-second-area', '#1a3054')} // Competition Blue instead of #00558f
+        fill={getElementColor('three-second-area', '#1a3054')} // Competition Blue
       />
       <rect 
         x="38.18" y="290.1" width="245.02" height="155.7" 
-        fill={getElementColor('three-second-area', '#1a3054')} // Competition Blue instead of #00558f
+        fill={getElementColor('three-second-area', '#1a3054')} // Competition Blue
       />
       
       {/* Basketball Center Circle */}
       <circle 
         cx="649.98" cy="367.58" r="77.14" 
-        fill={getElementColor('center-circle', '#1a3054')} // Competition Blue instead of #00558f
+        fill={getElementColor('center-circle', '#1a3054')} // Competition Blue
       />
       
       {/* Basketball Three Point Areas (this represents the actual three-point line areas) */}
       <path 
         d="m1260.67,115.67c-17.2-3.45-41.76-.81-60-.81-145.93,0-264.38,112.02-264.38,255.17s118.46,251.56,264.38,251.56c19.75,0,40.45-.22,60,.22"
-        fill={getElementColor('three-point', '#1a3054')} // Competition Blue instead of #00558f
+        fill={getElementColor('three-point', '#1a3054')} // Competition Blue
         fillOpacity="0.3"
       />
       <path 
         d="m37.29,620.03h0c17.21,3.45,41.78.81,60.04.81,146,0,264.52-112.02,264.52-255.17S243.34,114.11,97.33,114.11c-19.76,0-40.47.22-60.04-.22"
-        fill={getElementColor('three-point', '#1a3054')} // Competition Blue instead of #00558f
+        fill={getElementColor('three-point', '#1a3054')} // Competition Blue
         fillOpacity="0.3"
       />
       
@@ -257,7 +257,7 @@ const CourtSVG = ({ selectedCourt, appliedColors, showAccessories, overlays }: C
       {/* Base Court Background */}
       <rect 
         x="2.64" y="2.64" width="1290.99" height="735.99" 
-        fill={getElementColor('base-background', '#6c6d6f')} // Gray as default
+        fill={getElementColor('base-background', '#6c6d6f')} // Standard Gray
         stroke="#241f20" 
         strokeWidth="5.29"
       />

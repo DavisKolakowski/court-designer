@@ -1,4 +1,5 @@
 import { CourtType } from "../types/court";
+import { FaMedal } from "react-icons/fa";
 
 interface LandingPageProps {
   onCourtSelect: (court: CourtType) => void;
@@ -10,9 +11,7 @@ const LandingPage = ({ onCourtSelect }: LandingPageProps) => {
       <div className="text-center max-w-2xl">
         {/* Court icon placeholder */}
         <div className="w-24 h-24 bg-gray-200 rounded-2xl mx-auto mb-8 flex items-center justify-center">
-          <svg className="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-          </svg>
+          <FaMedal className="w-12 h-12 text-gray-400" />
         </div>
         
         <h1 className="text-4xl font-bold text-gray-800 mb-6">Design Your Court</h1>
