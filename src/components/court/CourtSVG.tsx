@@ -102,10 +102,10 @@ const CourtSVG = ({ selectedCourt, appliedColors, showAccessories, overlays }: C
   const renderTennisCourt = () => (
     <g>
       {/* Tennis Playing Area */}
-      <rect x="134.67" y="125.48" width="1019" height="483" fill={getElementColor('tennis-playing-area', '#7b3522')}/> {/* Classic Red instead of #7a3422 */}
+      <rect x="134.67" y="125.48" width="1019" height="483" fill={getElementColor('tennis-playing-area', '#7b3522')}/> {/* Classic Red */}
       
       {/* Tennis Court Lines */}
-      <g stroke={getElementColor('tennis-lines', '#ffffff')} strokeWidth="5" fill="none"> {/* Brilliant White instead of #fff */}
+      <g stroke={getElementColor('tennis-lines', '#ffffff')} strokeWidth="5" fill="none"> {/* Brilliant White */}
         <line x1="132.6" y1="608.85" x2="132.6" y2="125.23"/>
         <line x1="1152.09" y1="125.23" x2="1152.09" y2="608.85"/>
         <line x1="1152.09" y1="608.85" x2="132.6" y2="608.85"/>
@@ -131,14 +131,14 @@ const CourtSVG = ({ selectedCourt, appliedColors, showAccessories, overlays }: C
   const renderPickleballCourt = () => (
     <g>
       {/* Pickleball Kitchen */}
-      <rect x="548.4" y="228.59" width="197.7" height="274.9" fill={getElementColor('pickleball-kitchen', '#233e6d')}/> {/* Standard Blue instead of #193f70 */}
+      <rect x="548.4" y="228.59" width="197.7" height="274.9" fill={getElementColor('pickleball-kitchen', '#233e6d')}/> {/* Standard Blue */}
       
       {/* Pickleball Service Areas */}
-      <rect x="345.75" y="228.19" width="202.7" height="275.7" fill={getElementColor('pickleball-service-area', '#445f43')}/> {/* Competition Green instead of #405c3c */}
-      <rect x="746.1" y="228.39" width="202.7" height="275.7" fill={getElementColor('pickleball-service-area', '#445f43')}/> {/* Competition Green instead of #405c3c */}
+      <rect x="345.75" y="228.19" width="202.7" height="275.7" fill={getElementColor('pickleball-service-area', '#445f43')}/> {/* Competition Green */}
+      <rect x="746.1" y="228.39" width="202.7" height="275.7" fill={getElementColor('pickleball-service-area', '#445f43')}/> {/* Competition Green */}
       
       {/* Pickleball Court Lines */}
-      <g stroke={getElementColor('pickleball-lines', '#ffffff')} strokeWidth="3.28" fill="none"> {/* Brilliant White instead of #fff */}
+      <g stroke={getElementColor('pickleball-lines', '#ffffff')} strokeWidth="3.28" fill="none"> {/* Brilliant White */}
         <line x1="948.8" y1="504.59" x2="345.8" y2="504.59"/>
         <line x1="345.8" y1="228.59" x2="948.75" y2="229.14"/>
         <line x1="345.8" y1="366.59" x2="548.4" y2="366.59"/>
