@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { CourtType, ElementType } from '../types/court';
 import { useCourtDesign } from './useCourtDesign';
 import { useMobileDetection } from './useMobileDetection';
+import { getElementsForCourt } from '../utils/courtHelpers';
 
 export const useDesignInteractions = (selectedCourt: CourtType) => {
   const navigate = useNavigate();
@@ -42,19 +43,19 @@ export const useDesignInteractions = (selectedCourt: CourtType) => {
     courtDesign.updateOverlays({
       [courtType]: !courtDesign.overlays[courtType]
     });
-  };
-
-  // Convert new color structure to legacy format for CourtSVG
+  };  // Convert new color structure to legacy format for CourtSVG
   const getLegacyAppliedColors = (): Record<string, string> => {
     const legacyColors: Record<string, string> = {};
-    const fullState = courtDesign.getDesignSummary();
     
     (['basketball', 'tennis', 'pickleball'] as CourtType[]).forEach(court => {
-      const courtColors = fullState[court]?.colors || {};
-      Object.entries(courtColors).forEach(([element, color]) => {
-        if (color && typeof color === 'string') {
-          legacyColors[`${court}-${element}`] = color;
-        }
+      // For each court, we need to get all possible elements and their colors
+      // (either explicitly set or default colors)
+      const elementsForCourt = getElementsForCourt(court);
+      
+      elementsForCourt.forEach(element => {
+        // Use the same logic as getCourtColor to get the actual color used
+        const color = courtDesign.getCourtColor(court, element);
+        legacyColors[`${court}-${element}`] = color;
       });
     });
     

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CourtType, ElementType, CourtOverlays } from "../types/court";
-import { getDefaultElementColors } from "../utils/courtHelpers";
+import { getDefaultElementColors, getElementsForCourt } from "../utils/courtHelpers";
 
 interface UseDesignUrlStateProps {
   courtDesign: any; // From useCourtDesign hook
@@ -50,13 +50,33 @@ export const useDesignUrlState = ({
         );
       } catch (e) {
         console.warn("Failed to parse design from URL:", e);
-      }
-    } else {
-      // If no design param, reset to defaults to ensure clean state
-      courtDesign.resetState();
+      }    } else {
+      // If no design param, reset to defaults to ensure clean state but preserve current court
+      courtDesign.resetState(true);
     }
-    courtDesign.updateState({ selectedCourt });
-  }, [selectedCourt, searchParams.get("design")]); // Only depend on the actual design param value  // Update URL when significant state changes occur (for sharing)
+    
+    // Ensure selectedElement is valid for the current court and selectedColor matches
+    const validElements = getElementsForCourt(selectedCourt);
+    const currentSelectedElement = courtDesign.selectedElement;
+    
+    // If current selected element is not valid for this court type, use the first valid element
+    if (!validElements.includes(currentSelectedElement)) {
+      const firstElement = validElements[0];
+      const elementColor = courtDesign.getCourtColor(selectedCourt, firstElement);
+      courtDesign.updateState({ 
+        selectedCourt,
+        selectedElement: firstElement,
+        selectedColor: elementColor
+      });
+    } else {
+      // Element is valid, but ensure the color matches
+      const elementColor = courtDesign.getCourtColor(selectedCourt, currentSelectedElement);
+      courtDesign.updateState({ 
+        selectedCourt,
+        selectedColor: elementColor
+      });
+    }
+  }, [selectedCourt, searchParams.get("design")]);// Only depend on the actual design param value  // Update URL when significant state changes occur (for sharing)
   useEffect(() => {
     // Only update URL if there's actual design data beyond defaults
     const designSummary = courtDesign.getDesignSummary();

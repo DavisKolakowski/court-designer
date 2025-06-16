@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CourtType, ElementType, CourtOverlays } from '../types/court';
+import { getDefaultElementColors } from '../utils/courtHelpers';
 
 // Comprehensive design state for all court components
 interface CourtComponentColors {
@@ -37,12 +38,15 @@ interface CourtDesignState {
 
 const STORAGE_KEY = 'court-design-state';
 
-const getDefaultCourtDesign = (): CourtDesign => ({
-  colors: {
-    'base-background': '#6c6d6f', // Gray from our color palette
-  },
-  showAccessories: true,
-});
+const getDefaultCourtDesign = (): CourtDesign => {
+  const defaultColors = getDefaultElementColors();
+  return {
+    colors: {
+      'base-background': defaultColors['base-background'],
+    },
+    showAccessories: true,
+  };
+};
 
 const getDefaultDesignState = (): FullDesignState => ({
   basketball: getDefaultCourtDesign(),
@@ -78,12 +82,16 @@ export const useCourtDesign = () => {
         console.warn('Failed to parse saved court design state:', error);
       }
     }
+      // Default state
+    const initialElement = 'base-background' as ElementType;
+    const initialCourt = 'basketball' as CourtType;
+    const defaultColors = getDefaultElementColors();
+    const initialColor = defaultColors[initialElement] || '#6c6d6f';
     
-    // Default state
     return {
-      selectedCourt: 'basketball' as CourtType,
-      selectedColor: '#233e6d',
-      selectedElement: 'base-background' as ElementType,
+      selectedCourt: initialCourt,
+      selectedColor: initialColor,
+      selectedElement: initialElement,
       designState: getDefaultDesignState()
     };
   });
@@ -144,10 +152,9 @@ export const useCourtDesign = () => {
 
   // Get current court's design
   const getCurrentCourtDesign = () => state.designState[state.selectedCourt];
-
   // Get color for specific court and element
   const getCourtColor = (court: CourtType, element: ElementType) => {
-    return state.designState[court].colors[element] || state.designState[court].colors['base-background'];
+    return state.designState[court].colors[element] || getDefaultElementColors()[element] || '#6c6d6f';
   };
 
   // Generate design summary for email
@@ -178,13 +185,16 @@ export const useCourtDesign = () => {
     const designSummary = getDesignSummary();
     const encodedState = btoa(JSON.stringify(designSummary));
     return `${window.location.origin}/${state.selectedCourt}?design=${encodedState}`;
-  };
-
-  const resetState = () => {
+  };  const resetState = (preserveCurrentCourt: boolean = false) => {
+    const initialElement = 'base-background' as ElementType;
+    const initialCourt = preserveCurrentCourt ? state.selectedCourt : 'basketball' as CourtType;
+    const defaultColors = getDefaultElementColors();
+    const initialColor = defaultColors[initialElement] || '#6c6d6f';
+    
     setState({
-      selectedCourt: 'basketball' as CourtType,
-      selectedColor: '#233e6d',
-      selectedElement: 'base-background' as ElementType,
+      selectedCourt: initialCourt,
+      selectedColor: initialColor,
+      selectedElement: initialElement,
       designState: getDefaultDesignState()
     });
   };
