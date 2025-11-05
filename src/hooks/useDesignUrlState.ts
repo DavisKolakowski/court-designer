@@ -1,18 +1,26 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CourtType, ElementType, CourtOverlays } from "../types/court";
+import { useCourtDesignStore } from "../stores/courtDesignStore";
 import { getDefaultElementColors, getElementsForCourt } from "../utils/courtHelpers";
 
 interface UseDesignUrlStateProps {
-  courtDesign: any; // From useCourtDesign hook
   selectedCourt: CourtType;
 }
 
 export const useDesignUrlState = ({
-  courtDesign,
   selectedCourt,
 }: UseDesignUrlStateProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const selectedElement = useCourtDesignStore(state => state.selectedElement);
+  const updateState = useCourtDesignStore(state => state.updateState);
+  const updateCourtColor = useCourtDesignStore(state => state.updateCourtColor);
+  const updateCourtAccessories = useCourtDesignStore(state => state.updateCourtAccessories);
+  const updateOverlays = useCourtDesignStore(state => state.updateOverlays);
+  const resetState = useCourtDesignStore(state => state.resetState);
+  const getCourtColor = useCourtDesignStore(state => state.getCourtColor);
+  const getDesignSummary = useCourtDesignStore(state => state.getDesignSummary);
 
   // Initialize state from URL params or load from state store
   useEffect(() => {
@@ -25,7 +33,7 @@ export const useDesignUrlState = ({
         Object.entries(decodedDesign).forEach(
           ([courtType, courtData]: [string, any]) => {
             if (courtType === "overlays") {
-              courtDesign.updateOverlays(courtData);
+              updateOverlays(courtData);
             } else if (
               ["basketball", "tennis", "pickleball"].includes(courtType)
             ) {
@@ -33,7 +41,7 @@ export const useDesignUrlState = ({
               // Apply colors for this court
               Object.entries(courtData.colors).forEach(
                 ([element, color]: [string, any]) => {
-                  courtDesign.updateCourtColor(
+                  updateCourtColor(
                     court,
                     element as ElementType,
                     color
@@ -41,7 +49,7 @@ export const useDesignUrlState = ({
                 }
               );
               // Apply accessories setting
-              courtDesign.updateCourtAccessories(
+              updateCourtAccessories(
                 court,
                 courtData.showAccessories
               );
@@ -50,36 +58,39 @@ export const useDesignUrlState = ({
         );
       } catch (e) {
         console.warn("Failed to parse design from URL:", e);
-      }    } else {
+      }
+    } else {
       // If no design param, reset to defaults to ensure clean state but preserve current court
-      courtDesign.resetState(true);
+      resetState(true);
     }
     
     // Ensure selectedElement is valid for the current court and selectedColor matches
     const validElements = getElementsForCourt(selectedCourt);
-    const currentSelectedElement = courtDesign.selectedElement;
+    const currentSelectedElement = selectedElement;
     
     // If current selected element is not valid for this court type, use the first valid element
     if (!validElements.includes(currentSelectedElement)) {
       const firstElement = validElements[0];
-      const elementColor = courtDesign.getCourtColor(selectedCourt, firstElement);
-      courtDesign.updateState({ 
+      const elementColor = getCourtColor(selectedCourt, firstElement);
+      updateState({ 
         selectedCourt,
         selectedElement: firstElement,
         selectedColor: elementColor
       });
     } else {
       // Element is valid, but ensure the color matches
-      const elementColor = courtDesign.getCourtColor(selectedCourt, currentSelectedElement);
-      courtDesign.updateState({ 
+      const elementColor = getCourtColor(selectedCourt, currentSelectedElement);
+      updateState({ 
         selectedCourt,
         selectedColor: elementColor
       });
     }
-  }, [selectedCourt, searchParams.get("design")]);// Only depend on the actual design param value  // Update URL when significant state changes occur (for sharing)
+  }, [selectedCourt, searchParams.get("design")]);
+
+  // Update URL when significant state changes occur (for sharing)
   useEffect(() => {
     // Only update URL if there's actual design data beyond defaults
-    const designSummary = courtDesign.getDesignSummary();
+    const designSummary = getDesignSummary();
     const defaultColors = getDefaultElementColors();
 
     const hasCustomizations = Object.entries(designSummary).some(
@@ -120,7 +131,7 @@ export const useDesignUrlState = ({
     }
   }, [
     // Use stable serialized state instead of object references
-    JSON.stringify(courtDesign.getDesignSummary()),
+    JSON.stringify(getDesignSummary()),
     setSearchParams,
   ]);
 };

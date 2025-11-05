@@ -1,14 +1,28 @@
 export type CourtType = 'basketball' | 'tennis' | 'pickleball';
 
+export type GlobalElement = 'base-background';
+
+export type BasketballElement = 
+  | 'playing-area' 
+  | 'lines' 
+  | 'three-point' 
+  | 'center-circle' 
+  | 'three-second-area';
+
+export type TennisElement = 
+  | 'tennis-playing-area' 
+  | 'tennis-lines';
+
+export type PickleballElement = 
+  | 'pickleball-kitchen' 
+  | 'pickleball-service-area' 
+  | 'pickleball-lines';
+
 export type ElementType = 
-  // Common elements
-  | 'base-background'
-  // Basketball elements
-  | 'playing-area' | 'lines' | 'three-point' | 'center-circle' | 'three-second-area'
-  // Tennis elements  
-  | 'tennis-playing-area' | 'tennis-lines'
-  // Pickleball elements
-  | 'pickleball-kitchen' | 'pickleball-service-area' | 'pickleball-lines';
+  | GlobalElement
+  | BasketballElement
+  | TennisElement
+  | PickleballElement;
 
 export interface CourtOverlays {
   basketball: boolean;
