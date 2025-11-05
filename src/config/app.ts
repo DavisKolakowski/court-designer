@@ -7,7 +7,7 @@ const getConfig = (): AppConfig => {
   return {
     // In Azure Static Web Apps, use VITE_QUOTE_EMAIL environment variable
     // Fallback to the original email for local development
-    quoteEmail: import.meta.env.VITE_QUOTE_EMAIL || 'reagankola@gmail.com',
+    quoteEmail: import.meta.env.VITE_QUOTE_EMAIL || '',
   };
 };
 
